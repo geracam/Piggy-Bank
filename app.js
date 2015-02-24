@@ -1,56 +1,39 @@
 // set variables for environment
-var express = require('express');
-var app = express();
 var path = require('path');
+var express = require('express');
 var http = require('http');
-var exphbs = require('express-handlebars');
-var logger = require('morgan');
+var mongoose = require('mongoose');
+var passport = require('passport');
+var flash = require('connect-flash');
+var morgan = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var methodOverride = require('method-override');
 var session = require('express-session');
-var passport = require('passport');
-var LocalStrategy = require('passport-local');
-var TwitterStrategy = require('passport-twitter');
-var GoogleStrategy = require('passport-google');
-var FacebookStrategy = require('passport-facebook');
 
-// config file containing private info
-//var config = require('./config.js');
+var configDB = require('./config/database.js');
+var app = express();
 
-// helper functions for passport
-//var funct = require('./functions.js');
+mongoose.connect(configDB.url);
 
-//==========EXPRESS=============
-// Configure Express
-app.use(logger('combined'));
+require('./config/passport')(passport); // pass passport for configuration
+
+app.use(morgan('dev'));
 app.use(cookieParser());
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(bodyParser.json());
-app.use(methodOverride('X-HTTP-Method-Override'));
-app.use(session({secret: 'supernova', saveUninitialized: true, resave: true}));
+app.use(bodyParser());
+
+// required for passport
+app.use(session({ secret: 'ilovescotchscotchyscotchscotch' })); // session secret
 app.use(passport.initialize());
-app.use(passport.session());
+app.use(passport.session()); // persistent login sessions
+app.use(flash()); // use connect-flash for flash messages stored in session
 
-// Session middleware
-app.use(function(req, res, next){
-	var err = req.session.error;
-	var msg = req.session.notice;
-	var success = req.session.success;
-
-	delete req.session.error;
-	delete req.session.success;
-	delete req.session.notice;
-
-	if (err) res.locals.error = err;
-	if (msg) res.locals.notice = msg;
-	if (success) res.locals.success = success;
-
-	next();
-})
-
-
-app.use(express.static(path.join(__dirname, 'public')));
+// routes ======================================================================
+require('./routes.js')(app, passport); // load our routes and pass in our app and fully configured passport
+app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'html');
+app.use(express.static(path.join(__dirname, 'views')));
+app.use(express.static(path.join(__dirname, 'views/loginPage')));
+app.use(express.static(path.join(__dirname, 'views/profilePage')));
 
 
 // Set server port
