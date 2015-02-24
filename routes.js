@@ -1,7 +1,8 @@
 // routes.js: Gerardo Camarena Gomez
 // Tells our application the flow control we want
+var chargeStripe = require("./config/stripeCharge.js");
 
-module.exports = function(app, passport) {
+module.exports = function(app, passport, stripe) {
     // ======HOME PAGE===========
     app.get('/', function(req, res) {
         res.render('index.html'); 
@@ -37,7 +38,6 @@ module.exports = function(app, passport) {
         req.logout();
         res.redirect('index.html');
     });
-};
 // route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next) {
 
@@ -47,4 +47,5 @@ function isLoggedIn(req, res, next) {
 
     // if they aren't redirect them to the home page
     res.redirect('/');
+}
 }
