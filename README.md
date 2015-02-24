@@ -59,7 +59,7 @@ Everything else can be installed by cloning this repository and running:
 
 ######TODO:
 
-1.  Use Stripe to be able to deposit money onto your profile.
+1.  Use Stripe to be able to deposit money onto your profile. NOTE: Stripe and works but with minimal functionality. Must make charge amount customizable now.
 
 
 
